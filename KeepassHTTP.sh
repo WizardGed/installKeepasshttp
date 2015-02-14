@@ -28,12 +28,12 @@ if [ $UID != "0" ]; then
 	exit 1
 fi
 
-# I have only included Debian and Ubuntu as these were the only Distro's I had access to at the time.
+# I have only tested Debian and Ubuntu as these were the only Distro's I had access to at the time.
 # Contact me or submit a pull request to have me add your distro and dependancies to the script.
 
 echo "Updating package list and installing required dependancies."
 
-if [ $OS = 'Ubuntu' ]; then
+if [ $OS = 'Ubuntu' || $OS = 'LinuxMint' || $OS = 'elementary OS' ]; then
 	apt-get update && apt-get install -y mono-complete
 fi
 
@@ -41,29 +41,46 @@ if [ $OS = 'Debian' ]; then
 	apt-get update && apt-get install -y libmono-system-runtime-serialization4.0-cil libmono-posix2.0-cil
 fi
 
-# You need to create the plugins folder as it most likely will not exist
+if [ $OS = 'Arch' ]; then
+	pacman -Syyu && pacman -S mono --noconfirm 
+fi
 
-echo 'Creating the /usr/lib/keepass2/plugins directory'
+if [ $OS = 'openSUSE project' ]; then
+	zypper update && zypper --non-interactive install mono-complete
+fi
+
+if [ $OS = 'Fedora' ]; then
+	yum update  && yum -y install mono
+fi
+
+if [ `uname -a` = 'FreeBSD' ]; then
+	pkg update  && pkg-install -y mono
+fi
+
+# You need to create the plugins folder as it most likely will not exist.
+
+echo 'Creating the /usr/lib/keepass2/plugins directory.'
 mkdir -p /usr/lib/keepass2/plugins
 
-echo 'Changing directories to the /usr/lib/keepass2/plugins directory'
+echo 'Changing directories to the /usr/lib/keepass2/plugins directory.'
 cd  /usr/lib/keepass2/plugins
 
-echo 'Downloading KeepassHttp'
+echo 'Downloading KeePassHTTP.'
 
-# I have found that the plgx file works best on the systems I have tested but have left the 2 dll files commented out in case you're a massochist.
+# I have found that the .plgx file works best on the systems I have tested but have left the 2 .dll files commented out in case you're a masochist.
 
 # wget https://github.com/pfn/keepasshttp/blob/master/mono/KeePassHttp.dll 2>/dev/null || curl -O  https://github.com/pfn/keepasshttp/blob/master/mono/KeePassHttp.dll
 # wget https://github.com/pfn/keepasshttp/blob/master/mono/Newtonsoft.Json.dll 2>/dev/null || curl -O  https://github.com/pfn/keepasshttp/blob/master/mono/Newtonsoft.Json.dll
 
 wget https://github.com/pfn/keepasshttp/raw/master/KeePassHttp.plgx 2>/dev/null || curl -O https://github.com/pfn/keepasshttp/raw/master/KeePassHttp.plgx
 
-echo 'Changing permissions of downloaded file to allow reading and execution by anyone'
+echo 'Changing permissions of the downloaded file to allow reading and execution by anyone.'
 
-# remember to uncomment the top 2 and comment out the final chmod command if you are using the dll's
+# Remember to uncomment the top 2 and comment out the final chmod command if you are using the dll's.
 
 # chmod 644 KeePassHttp.dll
 # chmod 644 Newtonsoft.Json.dll
+
 chmod 644 KeePassHttp.plgx
 
 echo 'Installation complete, restart KeePass Immediately'
